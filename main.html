@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <title>Hackathon - template.html</title>
+    <script type="text/javascript" src="js/Three.js"></script>
+    <script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
+  </head>
+  
+  <body>
+  </body>
+
+  <script>
+    var camera, scene, renderer;
+    var radius = 150;
+    var enemiesSize = 20;
+
+    init();
+    animate();
+
+    function init() {
+      camera = new THREE.Camera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+      camera.position.z = 1000;
+      scene = new THREE.Scene();
+
+      console.log(Math.round(Math.random() * 100));
+
+      enemies = new Array(enemiesSize);
+      enemiesSpeed = new Array(enemiesSize);
+      
+     for (var i = 0; i < enemiesSize; i++) {
+        var rad = Math.floor(Math.random() * 100);
+        var x = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 600);
+        var y = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
+        var z = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
+        var sx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+        var sy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+        var sz = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 10);
+        temp = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 16), new THREE.MeshBasicMaterial({color: 0xff0000}));
+        temp.position.set(x, y, z);
+        enemies[i] = temp;
+        enemiesSpeed[i] = [sx, sy, sz];
+        scene.addObject(temp);
+      }
+
+      player = new THREE.Mesh( new THREE.SphereGeometry(radius, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ff00}));
+      player.position.set(-500, -10, 10);
+      scene.addObject(player);
+
+      //player2 = new THREE.Mesh( new THREE.SphereGeometry(radius, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ff00}));
+      //player2.position.set(-500, -10, 10);
+      //scene.addObject(player2);
+      
+      pointLight = new THREE.PointLight(0xFFFFFF);
+      pointLight.position.set(10, 50, 50);
+      scene.addLight(pointLight);
+
+      console.log(player);
+
+      renderer = new THREE.CanvasRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+    }
+
+    function animate() {
+      // Include examples/js/RequestAnimationFrame.js for cross-browser compatibility.
+      requestAnimationFrame( animate );
+      render();
+    }
+
+    function render() {
+      player.rotation.x += 0.01;
+      player.rotation.y += 0.01;
+      player.position.x += 1;
+      player.position.y += 1;
+
+      for (var i = 0; i < enemiesSize; i++) {
+        if (enemies[i] == null)
+          continue;  
+        enemies[i].position.x += enemiesSpeed[i][0];
+        enemies[i].position.y += enemiesSpeed[i][1];
+        enemies[i].position.z += enemiesSpeed[i][2];
+        
+        var playerCollide = collide(player.position, enemies[i].position, player.boundRadius, enemies[i].boundRadius);
+        if (playerCollide == true && player.boundRadius < enemies[i].boundRadius) {
+          alert("YOU LOSE");
+        }
+        else if (playerCollide == true && player.boundRadius > enemies[i].boundRadius) {
+          console.log('sdfdsf');
+          scene.removeObject(enemies[i]);
+          enemies[i] = null;
+          continue;
+        }
+        
+        if (enemies[i].position.x < -(window.innerWidth/2) || enemies[i].position.x > window.innerWidth/2)
+          enemiesSpeed[i][0] *= -1;
+        if (enemies[i].position.y < -(window.innerHeight/2) || enemies[i].position.y > window.innerHeight/2)
+          enemiesSpeed[i][1] *= -1;
+        if (enemies[i].position.z < -400 || enemies[i].position.z > 400)
+          enemiesSpeed[i][2] *= -1;
+      }
+
+      renderer.render( scene, camera );
+    }
+
+    function collide(pos1, pos2, rad1, rad2) {
+      var dist = Math.sqrt((pos2[0]-pos1[0])*(pos2[0]-pos1[0]) + (pos2[1]-pos1[1])*(pos2[1]-pos1[1]) + (pos2[2]-pos1[2])*(pos2[2]-pos1[2]));
+      if (dist < rad1 + rad2)
+        return true;
+      return false;
+    }
+  </script>
+</html>
