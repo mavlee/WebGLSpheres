@@ -12,7 +12,7 @@
   <script>
     var camera, scene, renderer;
     var radius = 75;
-    var enemiesSize = 20;
+    var enemiesSize = 30;
     var totalEnemies = enemiesSize;
     // x y z
     var moveSpeed = [0, 0, 0];
@@ -30,7 +30,7 @@
       enemiesSpeed = new Array(enemiesSize);
       
       for (var i = 0; i < enemiesSize; i++) {
-        var rad = Math.floor(Math.random() * 75);
+        var rad = Math.floor(Math.random() * 100);
         var x = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 600);
         var y = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
         var z = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
@@ -93,7 +93,7 @@
         }
         else if (playerCollide == true && player.boundRadius > enemies[i].boundRadius) {
           scene.removeObject(player);
-          var newPlayer = new THREE.Mesh( new THREE.SphereGeometry(player.boundRadius + enemies[i].boundRadius / 2, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true}));
+          var newPlayer = new THREE.Mesh( new THREE.SphereGeometry(player.boundRadius + enemies[i].boundRadius / 4, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true}));
           newPlayer.rotation = player.rotation;
           newPlayer.position = player.position;
           player = newPlayer;
