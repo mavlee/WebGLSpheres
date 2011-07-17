@@ -11,10 +11,10 @@
 
   <script>
     var camera, scene, renderer;
-    var radius = 50;
+    var radius = 75;
     var enemiesSize = 20;
     var totalEnemies = enemiesSize;
-    // -x +x -y +y -z +z
+    // x y z
     var moveSpeed = [0, 0, 0];
 
     init();
@@ -30,7 +30,7 @@
       enemiesSpeed = new Array(enemiesSize);
       
       for (var i = 0; i < enemiesSize; i++) {
-        var rad = Math.floor(Math.random() * 100);
+        var rad = Math.floor(Math.random() * 75);
         var x = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 600);
         var y = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
         var z = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 400);
@@ -45,7 +45,7 @@
       }
 
       player = new THREE.Mesh( new THREE.SphereGeometry(radius, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true}));
-      player.position.set(-500, -10, 10);
+      player.position.set(0, 0, 0);
       scene.addObject(player);
 
       pointLight = new THREE.PointLight(0x0000FF);
@@ -92,6 +92,12 @@
           return;
         }
         else if (playerCollide == true && player.boundRadius > enemies[i].boundRadius) {
+          scene.removeObject(player);
+          var newPlayer = new THREE.Mesh( new THREE.SphereGeometry(player.boundRadius + enemies[i].boundRadius / 2, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true}));
+          newPlayer.rotation = player.rotation;
+          newPlayer.position = player.position;
+          player = newPlayer;
+          scene.addObject(player);
           totalEnemies--;
           if (totalEnemies == 0) {
             alert("YOU WIN");
@@ -99,6 +105,24 @@
           scene.removeObject(enemies[i]);
           enemies[i] = null;
           continue;
+        }
+
+        for (var j = 0; j < enemiesSize; j++) {
+          if (i == j || enemies[j] == null) {
+            continue;
+          }
+          var enemyCollision = isCollide(enemies[i].position, enemies[j].position, enemies[i].boundRadius, enemies[j].boundRadius);
+          if (enemyCollision && enemies[i].boundRadius > enemies[j].boundRadius) {
+            scene.removeObject(enemies[i]);
+            scene.removeObject(enemies[j]);
+            totalEnemies--;
+            var newEnemy = new THREE.Mesh(new THREE.SphereGeometry(enemies[i].boundRadius + enemies[j].boundRadius / 4, 16, 16), new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true}));
+            newEnemy.rotation = enemies[i].rotation;
+            newEnemy.position = enemies[i].position;
+            enemies[i] = newEnemy;
+            enemies[j] = null;
+            scene.addObject(enemies[i]);
+          }
         }
         
         if (enemies[i].position.x < -(window.innerWidth/2) || enemies[i].position.x > window.innerWidth/2)
